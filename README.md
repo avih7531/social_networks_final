@@ -93,9 +93,12 @@ social_networks_final/
 │
 ├── project.py              # Main analysis script
 ├── requirements.txt        # Python dependencies
-├── writeup.md              # Full academic writeup with methodology
 ├── abstract.md             # Project abstract
 ├── README.md               # This file
+│
+├── writeup/                # Academic writeup
+│   ├── writeup.md          # Full paper (Markdown)
+│   └── writeup.pdf         # Precompiled PDF version
 │
 ├── presentation/           # LaTeX Beamer slides
 │   ├── slides.tex          # Main presentation file
@@ -171,7 +174,7 @@ social_networks_final/
 
 ## Full Writeup
 
-See [`writeup.md`](writeup.md) for the complete academic paper including:
+See [`writeup/writeup.md`](writeup/writeup.md) or the precompiled [`writeup/writeup.pdf`](writeup/writeup.pdf) for the complete academic paper including:
 - Theoretical background (Louvain, PageRank, Gini coefficient)
 - Mathematical formulations
 - Detailed results and analysis

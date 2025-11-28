@@ -4,7 +4,7 @@
 
 **Avi Herman**  
 *Department of Computer Science*  
-*Social Networks Analysis — Fall 2025*
+*Social Networks Final Project — Fall 2025*
 
 </div>
 
