@@ -1,0 +1,1038 @@
+\documentclass[aspectratio=169, 11pt]{beamer}
+
+% ============================================================
+% THEME AND STYLING
+% ============================================================
+\usetheme{metropolis}
+\usepackage{appendixnumberbeamer}
+
+% Colors - Dark theme with accent colors
+\definecolor{darkbg}{HTML}{1a1a2e}
+\definecolor{darkfg}{HTML}{16213e}
+\definecolor{accent}{HTML}{e94560}
+\definecolor{accentblue}{HTML}{00d9ff}
+\definecolor{textlight}{HTML}{eaeaea}
+\definecolor{textsub}{HTML}{a0a0a0}
+
+\setbeamercolor{normal text}{fg=textlight, bg=darkbg}
+\setbeamercolor{alerted text}{fg=accent}
+\setbeamercolor{example text}{fg=accentblue}
+\setbeamercolor{frametitle}{fg=textlight, bg=darkfg}
+\setbeamercolor{title}{fg=textlight}
+\setbeamercolor{subtitle}{fg=textsub}
+\setbeamercolor{author}{fg=textsub}
+\setbeamercolor{date}{fg=textsub}
+\setbeamercolor{block title}{fg=textlight, bg=darkfg}
+\setbeamercolor{block body}{fg=textlight, bg=darkfg!50!darkbg}
+\setbeamercolor{item}{fg=accent}
+\setbeamercolor{subitem}{fg=accentblue}
+
+% Progress bar
+\metroset{progressbar=frametitle}
+\setbeamercolor{progress bar}{fg=accent, bg=darkfg}
+
+% ============================================================
+% PACKAGES
+% ============================================================
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{xcolor}
+% \usepackage{fontspec}  % Commented out for pdflatex compatibility
+
+% Path to diagrams
+\graphicspath{{../diagrams/}}
+
+% ============================================================
+% TITLE INFO
+% ============================================================
+\title{Predicting Movie Genre Using\\Actor Co-Appearance Networks}
+\subtitle{Can network topology alone reveal genre?}
+\author{Avi Herman}
+\date{Social Networks Analysis --- Fall 2025}
+\institute{Department of Computer Science}
+
+% ============================================================
+% DOCUMENT
+% ============================================================
+\begin{document}
+
+% ----------------------------------------------------------
+% TITLE SLIDE
+% ----------------------------------------------------------
+\begin{frame}[plain]
+  \maketitle
+\end{frame}
+
+% ----------------------------------------------------------
+% MOTIVATION
+% ----------------------------------------------------------
+\begin{frame}{The Question}
+  \begin{center}
+    \Large
+    \textcolor{accent}{Can we predict a movie's genre}\\[0.5em]
+    \textcolor{accentblue}{using only actor collaborations?}\\[1.5em]
+    \normalsize
+    \textcolor{textsub}{No plot. No script. No text. No semantic features.}\\[0.5em]
+    \textcolor{textsub}{Just \textbf{who worked with whom}.}
+  \end{center}
+\end{frame}
+
+% ----------------------------------------------------------
+% HYPOTHESIS
+% ----------------------------------------------------------
+\begin{frame}{Hypothesis}
+  \begin{block}{Core Claim}
+    Actor collaboration graphs exhibit strong \textbf{community structure}, and these communities correspond to \textbf{film genres} at rates significantly above random.
+  \end{block}
+  
+  \vspace{1em}
+  
+  \textbf{Why might this work?}
+  \begin{itemize}
+    \item Directors repeatedly cast the same actors
+    \item Production companies specialize in genres
+    \item Franchise ecosystems create dense clusters
+    \item Horror circuits, rom-com ensembles, prestige drama pools
+  \end{itemize}
+  
+  \vspace{1em}
+  
+  \textcolor{accent}{\textbf{Genre may be a network-emergent property.}}
+\end{frame}
+
+% ----------------------------------------------------------
+% CONCEPTUAL FRAMEWORK
+% ----------------------------------------------------------
+\begin{frame}{Conceptual Framework}
+  \textbf{The Logic:}
+  
+  \vspace{1em}
+  
+  Actors specializing in similar film ecosystems tend to co-appear repeatedly. These recurring interactions create dense subgraphs that should map onto genre clusters if genre is a \textbf{socially emergent structure} within the film industry.
+  
+  \vspace{1.5em}
+  
+  \begin{block}{}
+    \centering
+    If communities correspond to genres, then \textcolor{accent}{genre is recoverable from network structure alone}.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conceptual Framework (continued)}
+  \textbf{We test this by:}
+  \begin{enumerate}
+    \item Constructing weighted co-appearance networks
+    \item Detecting communities via modularity optimization
+    \item Evaluating whether detected communities align with known genres
+  \end{enumerate}
+\end{frame}
+
+% ----------------------------------------------------------
+% NETWORK CONSTRUCTION
+% ----------------------------------------------------------
+\begin{frame}{Building the Network}
+  \textbf{Graph Structure:} $G = (V, E, w)$
+  \begin{itemize}
+    \item \textbf{Nodes} $V = \{a_1, a_2, \ldots, a_n\}$ = Actors
+    \item \textbf{Edges} $E = \{(a_i, a_j) : \text{co-appear in film}\}$
+    \item \textbf{Weights} = Genre-purity weighting
+  \end{itemize}
+  
+  \vspace{1.5em}
+  
+  \textbf{Edge Weight Function:}
+  \[
+  w(f) = \begin{cases}
+  1.00 & \text{single-genre film} \\
+  0.25 & \text{dual-genre} \\
+  0.05 & \text{triple-genre} \\
+  0.01 & \text{4+ genres}
+  \end{cases}
+  \]
+\end{frame}
+
+\begin{frame}{Building the Network (continued)}
+  \textbf{Final edge weight between actors $a_i$ and $a_j$:}
+  \[
+  W_{ij} = \sum_{f \in \mathcal{F}(a_i, a_j)} w(f)
+  \]
+  
+  where $\mathcal{F}(a_i, a_j)$ is the set of films featuring both actors.
+  
+  \vspace{1.5em}
+  
+  \begin{block}{}
+    \centering
+    \textcolor{textsub}{Intuition: A pure horror film is stronger evidence than Horror/Comedy/Romance.}
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% EDGE WEIGHT RATIONALE
+% ----------------------------------------------------------
+\begin{frame}{Edge Weight Rationale}
+  \textbf{Why penalize multi-genre films?}
+  
+  \vspace{1em}
+  
+  \begin{columns}
+    \column{0.5\textwidth}
+    \textbf{Step-function weighting:}
+    \begin{itemize}
+      \item 1 genre: 1.00 (strong indicator)
+      \item 2 genres: 0.25 (split signal)
+      \item 3 genres: 0.05 (minimal)
+      \item 4+ genres: 0.01 (nearly ignored)
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \textbf{Rationale:}
+    \begin{itemize}
+      \item Single-genre films strongly indicate genre affinity
+      \item Multi-genre films dilute genre specificity
+      \item We want to prioritize genre-pure collaborations
+    \end{itemize}
+  \end{columns}
+  
+  \vspace{1.5em}
+  
+  \begin{block}{}
+    \centering
+    A collaboration in a pure horror film is \textcolor{accent}{much stronger evidence} of ``horror actor'' than a collaboration in a film tagged Horror/Comedy/Romance/Drama.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% WHY COMMUNITIES
+% ----------------------------------------------------------
+\begin{frame}{Why Community Detection?}
+  \textbf{The central premise:} Genre is encoded in collaboration structure
+  
+  \vspace{1em}
+  
+  \begin{block}{Key Insight}
+    If actors cluster by genre, then:
+    \begin{itemize}
+      \item Actors within the same community share films more often than expected
+      \item Each community should exhibit a dominant genre
+      \item Community membership can serve as a genre \textbf{prediction}
+    \end{itemize}
+  \end{block}
+  
+  \vspace{1em}
+  
+  \textcolor{accent}{\textbf{Without community detection, we have no way to partition the network and test whether partitions correspond to genres.}}
+\end{frame}
+
+% ----------------------------------------------------------
+% COMMUNITY DETECTION
+% ----------------------------------------------------------
+\begin{frame}{Community Detection: Louvain Algorithm}
+  \textbf{Goal:} Find densely connected subgroups (communities)
+  
+  \vspace{1em}
+  
+  \textbf{Modularity:}
+  \[
+  Q = \frac{1}{2m} \sum_{i,j} \left[ A_{ij} - \frac{k_i k_j}{2m} \right] \delta(c_i, c_j)
+  \]
+  
+  \vspace{1em}
+  
+  \begin{columns}
+    \column{0.5\textwidth}
+    \textbf{Symbols:}
+    \begin{itemize}
+      \item $A_{ij}$ = edge weight
+      \item $k_i$ = weighted degree
+      \item $m$ = total edge weight
+      \item $c_i$ = community of $i$
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \textbf{Interpretation:}
+    \begin{itemize}
+      \item $Q = 0$: Random
+      \item $Q \approx 0.3$--$0.7$: Significant
+      \item $Q > 0.7$: Strong
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Community Detection: Louvain Algorithm (continued)}
+  \textbf{Louvain Process:}
+  \begin{enumerate}
+    \item Each node greedily joins community maximizing $\Delta Q$
+    \item Communities become super-nodes
+    \item Repeat until convergence
+  \end{enumerate}
+  
+  \vspace{1.5em}
+  
+  \begin{block}{}
+    \centering
+    Two-phase algorithm: \textbf{Local optimization} then \textbf{aggregation}
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% WHY MANY COMMUNITIES
+% ----------------------------------------------------------
+\begin{frame}{Why More Communities Than Genres?}
+  The algorithm typically produces \textbf{more communities than the 5 macro-genres}
+  
+  \vspace{1em}
+  
+  \begin{columns}
+    \column{0.5\textwidth}
+    \textbf{Why?}
+    \begin{itemize}
+      \item Sub-genre specialization\\
+        (slasher vs. supernatural horror)
+      \item Franchise isolation\\
+        (MCU actors form own cluster)
+      \item Niche production circuits\\
+        (low-budget regional films)
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \textbf{This is informative!}
+    \begin{itemize}
+      \item Algorithm discovers natural structure
+      \item Multiple resolution levels
+      \item Not preset—determined by modularity optimization
+    \end{itemize}
+  \end{columns}
+  
+  \vspace{1em}
+  
+  \textcolor{accent}{\textbf{The number of communities $|\mathcal{C}|$ is determined by the data, not preset.}}
+\end{frame}
+
+% ----------------------------------------------------------
+% WHAT COMMUNITIES CONTAIN
+% ----------------------------------------------------------
+\begin{frame}{What Do Communities Contain?}
+  Each community $c \in \mathcal{C}$ is a set of actors:
+  \[
+  c = \{a_{i_1}, a_{i_2}, \ldots, a_{i_k}\}
+  \]
+  
+  \vspace{1em}
+  
+  \textbf{Genre Distribution:} Characterize each community by its genre mix
+  \[
+  P_c(g) = \frac{\sum_{a \in c} \mathbb{1}[g^*(a) = g]}{|c|}
+  \]
+  
+  where $g^*(a)$ is actor $a$'s dominant macro-genre.
+  
+  \vspace{1em}
+  
+  \begin{block}{}
+    This gives a probability distribution over genres for each community.\\
+    \textcolor{accent}{Pure communities} have one dominant genre.\\
+    \textcolor{textsub}{Mixed communities} are spread across genres.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% PURITY AND PREDICTION
+% ----------------------------------------------------------
+\begin{frame}{Community Purity}
+  \textbf{Single Community Purity:}
+  \[
+  \text{Purity}(c) = \max_{g} \frac{|\{a \in c : g^*(a) = g\}|}{|c|}
+  \]
+  
+  \vspace{1em}
+  
+  \textcolor{textsub}{What fraction of a community shares the same dominant genre?}
+  
+  \vspace{1.5em}
+  
+  \textbf{Overall Purity (Weighted):}
+  \[
+  \text{Purity}_{\text{overall}} = \frac{1}{|V|} \sum_{c \in \mathcal{C}} |c| \cdot \text{Purity}(c)
+  \]
+  
+  \vspace{0.5em}
+  
+  \textcolor{textsub}{Equivalent to unweighted accuracy when assigning each community its majority genre.}
+\end{frame}
+
+\begin{frame}{Community Purity (continued)}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \textbf{Interpretation:}
+    \begin{itemize}
+      \item 0.20 = Random (5 genres)
+      \item 0.40--0.50 = Weak clustering
+      \item 0.60--0.70 = Moderate separation
+      \item 0.80+ = Strong communities
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \textcolor{accent}{\textbf{High purity} indicates that Louvain communities align with genre boundaries—the network \textit{knows} about genre even though genre labels were never used.}
+  \end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+% PURITY VS ACCURACY
+% ----------------------------------------------------------
+\begin{frame}{Purity vs. Accuracy}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \textbf{Purity}
+    \begin{itemize}
+      \item How homogeneous each community is
+      \item Measures community-level consistency
+      \item Equivalent to unweighted accuracy
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \textbf{Accuracy}
+    \begin{itemize}
+      \item How well community assignment predicts individual actors
+      \item Can exceed purity with weighting
+      \item PageRank-weighting amplifies signal
+    \end{itemize}
+  \end{columns}
+  
+  \vspace{1.5em}
+  
+  \begin{block}{Key Point}
+    With PageRank-weighting, accuracy can exceed raw purity because \textbf{central actors} (who define the community) tend to have cleaner genre profiles than peripheral actors.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% ACCURACY FORMULAS
+% ----------------------------------------------------------
+\begin{frame}{Prediction Accuracy Metrics}
+  \textbf{Three Voting Schemes:}
+  
+  \vspace{1em}
+  
+  \textbf{1. Unweighted Accuracy:}
+  \[
+  \text{Acc}_{\text{unweighted}} = \frac{1}{|V|} \sum_{a \in V} \mathbb{1}\left[ \hat{g}(c_a) = g^*(a) \right]
+  \]
+  Each actor contributes equally
+  
+  \vspace{1em}
+  
+  \textbf{2. Degree-Weighted Accuracy:}
+  \[
+  \text{Acc}_{\text{degree}} = \frac{\sum_{a \in V} k_a \cdot \mathbb{1}\left[ \hat{g}(c_a) = g^*(a) \right]}{\sum_{a \in V} k_a}
+  \]
+  Weights by collaboration volume
+\end{frame}
+
+\begin{frame}{Prediction Accuracy Metrics (continued)}
+  \textbf{3. PageRank-Weighted Accuracy:}
+  \[
+  \text{Acc}_{\text{PR}} = \frac{\sum_{a \in V} \text{PR}(a) \cdot \mathbb{1}\left[ \hat{g}(c_a) = g^*(a) \right]}{\sum_{a \in V} \text{PR}(a)}
+  \]
+  Weights by network influence
+  
+  \vspace{1.5em}
+  
+  \begin{block}{Rationale}
+    \centering
+    Core actors (high PageRank) more reliably represent their community's genre identity than peripheral actors.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% PAGERANK
+% ----------------------------------------------------------
+\begin{frame}{PageRank: Finding Core Actors}
+  \[
+  \text{PR}(a_i) = \frac{1-d}{N} + d \sum_{a_j \in \mathcal{N}(a_i)} \frac{W_{ji}}{\sum_k W_{jk}} \cdot \text{PR}(a_j)
+  \]
+  
+  \vspace{0.5em}
+  
+  \begin{columns}
+    \column{0.5\textwidth}
+    \textbf{Parameters:}
+    \begin{itemize}
+      \item $d = 0.85$ (damping factor)
+      \item $N$ = total actors
+      \item $\mathcal{N}(a_i)$ = neighbors
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \textbf{Intuition:}
+    \begin{itemize}
+      \item Actor is important if they collaborate with important actors
+      \item Weighted by strength of collaborations
+    \end{itemize}
+  \end{columns}
+  
+  \vspace{1em}
+  
+  \begin{block}{Key Insight}
+    \textbf{Core actors} (high PageRank) define community identity.\\
+    \textbf{Peripheral actors} often appear in single cross-genre films.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% GINI COEFFICIENT
+% ----------------------------------------------------------
+\begin{frame}{Gini Coefficient: Measuring Inequality}
+  \textbf{Formula:}
+  \[
+  G = \frac{2 \sum_{i=1}^{n} i \cdot x_{(i)}}{n \sum_{i=1}^{n} x_{(i)}} - \frac{n+1}{n}
+  \]
+  
+  where $x_{(i)}$ is the $i$-th smallest PageRank value.
+  
+  \vspace{1em}
+  
+  \begin{columns}
+    \column{0.5\textwidth}
+    \textbf{Interpretation:}
+    \begin{itemize}
+      \item $G \approx 0$: Perfect equality
+      \item $G \approx 0.2$--$0.3$: Weak hub structure
+      \item $G \approx 0.5$--$0.7$: Power-law (realistic)
+      \item $G \rightarrow 1$: Extreme inequality
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \textcolor{accent}{\textbf{What it tells us:}}
+    \begin{itemize}
+      \item Whether we have strong hubs
+      \item How unequal actor importance is
+      \item If network has realistic power-law shape
+      \item If dataset is large enough to reveal structure
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+% FALSIFICATION CRITERIA
+% ----------------------------------------------------------
+\begin{frame}{Falsification Criteria}
+  \textbf{The hypothesis is rejected if:}
+  
+  \vspace{1em}
+  
+  \begin{columns}
+    \column{0.33\textwidth}
+    \centering
+    \textcolor{accent}{\textbf{Modularity}}\\
+    $Q < 0.3$ across all configurations
+    
+    \column{0.33\textwidth}
+    \centering
+    \textcolor{accentblue}{\textbf{Community Purity}}\\
+    No dominant genre per community
+    
+    \column{0.33\textwidth}
+    \centering
+    \textcolor{accent}{\textbf{Accuracy}}\\
+    Converges to random baseline $\approx 0.20$
+  \end{columns}
+  
+  \vspace{2em}
+  
+  \begin{block}{}
+    \centering
+    \textbf{None of these occurred.}\\
+    The hypothesis is strongly supported.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% DATA
+% ----------------------------------------------------------
+\begin{frame}{Dataset}
+  \textbf{Source:} IMDb Non-Commercial Datasets
+  
+  \vspace{1em}
+  
+  \begin{columns}
+    \column{0.5\textwidth}
+    \textbf{Filters:}
+    \begin{itemize}
+      \item Feature films only
+      \item Runtime $\geq$ 59 min
+      \item Released 1960+
+      \item Top-3 billed cast
+      \item Actors with $\geq$ 3 credits
+      \item 18 canonical genres
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \textbf{5 Macro-Genres:}
+    \begin{itemize}
+      \item \textcolor{accent}{ACTION}: Action, Adventure, Thriller, Sci-Fi, War
+      \item \textcolor{accentblue}{DRAMA}: Drama, Romance, Biography
+      \item \textcolor{accent}{COMEDY}: Comedy, Music, Musical
+      \item \textcolor{accentblue}{DARK}: Crime, Mystery, Horror
+      \item \textcolor{accent}{FAMILY}: Family, Animation, Fantasy
+    \end{itemize}
+  \end{columns}
+  
+  \vspace{1em}
+  
+  \textbf{Sample Sizes:} 250, 1000, and 5000 films (top by popularity)
+\end{frame}
+
+% ----------------------------------------------------------
+% METHODOLOGY
+% ----------------------------------------------------------
+\begin{frame}{Experimental Design}
+  \textbf{For each sample size $N \in \{250, 1000, 5000\}$:}
+  
+  \vspace{1em}
+  
+  \begin{enumerate}
+    \item Select top-$N$ films by popularity (vote count)
+    \item Construct weighted actor network
+    \item Vary genre count from 3 to 12
+    \item For each configuration:
+    \begin{itemize}
+      \item Compute Louvain partition (weighted and unweighted)
+      \item Compute PageRank and Gini coefficient
+      \item Evaluate all three accuracy metrics
+    \end{itemize}
+    \item Generate diagnostic visualizations
+  \end{enumerate}
+  
+  \vspace{1em}
+  
+  \textcolor{accent}{\textbf{Total:} 3 sample sizes $\times$ 10 genre counts = 30 configurations}
+\end{frame}
+
+% ----------------------------------------------------------
+% RESULTS: PAGERANK DISTRIBUTION
+% ----------------------------------------------------------
+\begin{frame}{Result 1: PageRank Distribution Evolution}
+  \begin{center}
+    \includegraphics[height=0.7\textheight]{across_sample_sizes/pagerank_distribution_comparison.png}
+  \end{center}
+  
+  \vspace{0.5em}
+  
+  \begin{columns}
+    \column{0.33\textwidth}
+    \centering
+    \textbf{250 films}\\
+    Thin distribution\\
+    No heavy tail
+    
+    \column{0.33\textwidth}
+    \centering
+    \textbf{1,000 films}\\
+    Heavy tail starts\\
+    Power-law forming
+    
+    \column{0.33\textwidth}
+    \centering
+    \textbf{5,000 films}\\
+    Clear power-law\\
+    Strong hubs
+  \end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+% RESULTS: GINI
+% ----------------------------------------------------------
+\begin{frame}{Result 1 (cont.): Network Inequality Scales with Size}
+  \begin{columns}
+    \column{0.55\textwidth}
+    \includegraphics[width=\textwidth]{across_sample_sizes/gini_across_samples.png}
+    
+    \column{0.45\textwidth}
+    \begin{tabular}{ccc}
+      \toprule
+      \textbf{Films} & \textbf{Actors} & \textbf{Gini} \\
+      \midrule
+      250 & 415 & 0.282 \\
+      1,000 & 1,174 & 0.413 \\
+      5,000 & 4,124 & 0.440 \\
+      \bottomrule
+    \end{tabular}
+    
+    \vspace{1em}
+    
+    \textcolor{accent}{\textbf{Finding:}}\\
+    Larger datasets $\rightarrow$\\
+    more realistic hub structure\\
+    \textcolor{textsub}{(rich-get-richer)}
+  \end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+% RESULTS: MODULARITY
+% ----------------------------------------------------------
+\begin{frame}{Result 2: Strong Community Structure}
+  \begin{columns}
+    \column{0.55\textwidth}
+    \includegraphics[width=\textwidth]{5000/modularity_original_genres.png}
+    
+    \column{0.45\textwidth}
+    \begin{tabular}{cc}
+      \toprule
+      \textbf{Films} & \textbf{Peak $Q$} \\
+      \midrule
+      250 & \textbf{0.919} \\
+      1,000 & \textbf{0.845} \\
+      5,000 & \textbf{0.755} \\
+      \bottomrule
+    \end{tabular}
+    
+    \vspace{1em}
+    
+    \textcolor{accent}{\textbf{Finding:}}\\
+    $Q > 0.7$ at all scales\\[0.5em]
+    Actor networks are\\
+    \textbf{highly modular}
+  \end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+% RESULTS: CONFUSION MATRIX
+% ----------------------------------------------------------
+\begin{frame}{Result 3: Genre Separation}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\textwidth]{250/confusion_matrix_macro.png}
+    
+    \column{0.5\textwidth}
+    \textbf{Observations:}
+    \begin{itemize}
+      \item \textcolor{accent}{ACTION}: Sharply separated
+      \item \textcolor{accentblue}{COMEDY/FAMILY}: Clean clusters
+      \item \textcolor{textsub}{DRAMA}: Diffuse (meta-genre)
+      \item DARK $\leftrightarrow$ ACTION overlap
+    \end{itemize}
+    
+    \vspace{1em}
+    
+    \textcolor{accent}{\textbf{Communities align with genres!}}
+  \end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+% RESULTS: CO-OCCURRENCE
+% ----------------------------------------------------------
+\begin{frame}{Result 4: Genre Co-Occurrence Explains Overlaps}
+  \begin{columns}
+    \column{0.55\textwidth}
+    \includegraphics[width=\textwidth]{5000/genre_cooccurrence_matrix.png}
+    
+    \column{0.45\textwidth}
+    \textbf{Key Structures:}
+    \begin{itemize}
+      \item Action--Adventure--Thriller triad
+      \item Family--Animation cluster
+      \item Comedy avoids Dark
+      \item Drama connects everything
+    \end{itemize}
+    
+    \vspace{1em}
+    
+    \textcolor{textsub}{Multi-genre films create cross-community bridges.}
+  \end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+% RESULTS: NETWORK VIZ
+% ----------------------------------------------------------
+\begin{frame}{Result 5: Network Visualization}
+  \begin{center}
+    \includegraphics[height=0.75\textheight]{5000/actor_network.png}
+  \end{center}
+  \vspace{-0.5em}
+  \centering\textcolor{textsub}{5,000 films. Node color = community. Node size = degree.}
+\end{frame}
+
+% ----------------------------------------------------------
+% RESULTS: CHORD DIAGRAM
+% ----------------------------------------------------------
+\begin{frame}{Result 6: Genre Co-Occurrence Chord Diagram}
+  \begin{columns}
+    \column{0.6\textwidth}
+    \includegraphics[width=\textwidth]{5000/genre_cooccurrence_chord.png}
+    
+    \column{0.4\textwidth}
+    \vspace{-1em}
+    \textbf{Visualization:}
+    \begin{itemize}
+      \item Genres around circle
+      \item Arcs = co-occurrence
+      \item Thickness = frequency
+    \end{itemize}
+    
+    \vspace{1em}
+    
+    \textcolor{accent}{\textbf{Key insight:}}\\
+    Thick arcs $\rightarrow$ frequent co-occurrence $\rightarrow$ natural genre clusters
+    
+    \vspace{0.5em}
+    
+    \textcolor{textsub}{\small Example: Action--Adventure--Thriller triad}
+  \end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+% RESULTS: ACCURACY (THE BIG ONE)
+% ----------------------------------------------------------
+\begin{frame}{The Central Result: Prediction Accuracy}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \includegraphics[width=\textwidth]{across_sample_sizes/accuracy_across_samples.png}
+    
+    \column{0.5\textwidth}
+    \begin{tabular}{ccc}
+      \toprule
+      \textbf{Films} & \textbf{Accuracy} & \textbf{Lift} \\
+      \midrule
+      250 & \textbf{76.0\%} & 3.8$\times$ \\
+      1,000 & \textbf{63.9\%} & 3.2$\times$ \\
+      5,000 & \textbf{61.0\%} & 3.1$\times$ \\
+      \bottomrule
+    \end{tabular}
+    
+    \vspace{0.5em}
+    \textcolor{textsub}{Random baseline: 20\%}
+    
+    \vspace{1em}
+    
+    \textcolor{accent}{\textbf{3$\times$ better than random}}\\
+    \textcolor{accent}{\textbf{using only topology!}}
+  \end{columns}
+\end{frame}
+
+% ----------------------------------------------------------
+% ACCURACY COMPARISON TABLE
+% ----------------------------------------------------------
+\begin{frame}{Accuracy Comparison: All Methods}
+  \begin{center}
+    \begin{tabular}{ccccc}
+      \toprule
+      \textbf{Films} & \textbf{Unweighted} & \textbf{Degree} & \textbf{PageRank} & \textbf{Random} \\
+      \midrule
+      250 & 0.720 & 0.696 & \textcolor{accent}{\textbf{0.760}} & 0.200 \\
+      1,000 & 0.608 & 0.502 & \textcolor{accent}{\textbf{0.639}} & 0.200 \\
+      5,000 & 0.524 & 0.553 & \textcolor{accent}{\textbf{0.610}} & 0.200 \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  
+  \vspace{1.5em}
+  
+  \textbf{Key Findings:}
+  \begin{enumerate}
+    \item \textcolor{accent}{PageRank-weighted accuracy is consistently highest} across all sample sizes
+    \item \textcolor{accentblue}{Accuracy exceeds 3$\times$ the random baseline} even at largest scale
+    \item \textcolor{accent}{Central actors encode genre identity} more reliably than peripheral actors
+    \item \textcolor{accentblue}{The network knows about genre} despite never being given genre labels
+  \end{enumerate}
+  
+  \vspace{1em}
+  
+  \begin{block}{}
+    \centering
+    \textbf{Bottom line:} Using only network topology, we achieve \textcolor{accent}{\textbf{61.0\% accuracy}} on a 5-class problem where random guessing yields 20\%.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% WHY IT WORKS
+% ----------------------------------------------------------
+\begin{frame}{Why Does Genre Emerge from Network Structure?}
+  \textbf{The film industry operates through collaboration microcultures:}
+  
+  \vspace{1em}
+  
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{itemize}
+      \item Recurring casts (e.g., Christopher Nolan's ensemble)
+      \item Director--actor partnerships
+      \item Franchise ecosystems (MCU, horror sequels)
+      \item Genre-bound production companies
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \begin{itemize}
+      \item Low-budget horror circuits
+      \item Rom-com ensembles
+      \item Prestige drama clusters
+      \item Animation voice actor pools
+    \end{itemize}
+  \end{columns}
+  
+  \vspace{1.5em}
+  
+  \begin{block}{}
+    \centering
+    These \textbf{institutional structures} manifest as\\
+    high-modularity subgraphs aligned with recognizable genres.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% WHY ACCURACY DECLINES
+% ----------------------------------------------------------
+\begin{frame}{Why Does Accuracy Decline with Scale?}
+  \textbf{Larger datasets introduce noise:}
+  
+  \vspace{1em}
+  
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{itemize}
+      \item \textcolor{accent}{Multi-genre actors}\\
+        Blur community boundaries
+      \item \textcolor{accentblue}{Cross-genre franchises}\\
+        Create inter-community bridges
+      \item \textcolor{accent}{High-degree bridge actors}\\
+        Reduce modularity
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \begin{itemize}
+      \item \textcolor{accentblue}{DRAMA as umbrella genre}\\
+        Connects disparate clusters
+      \item \textcolor{textsub}{More genre mixing}\\
+        Dilutes cluster purity
+    \end{itemize}
+  \end{columns}
+  
+  \vspace{1.5em}
+  
+  \begin{block}{}
+    \centering
+    \textbf{However, accuracy never approaches random}—\\
+    genre signal persists at all scales.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% WHY PAGERANK
+% ----------------------------------------------------------
+\begin{frame}{Why PageRank-Weighting Wins}
+  \begin{block}{The Problem}
+    Peripheral actors appear in single cross-genre films.\\
+    They add \textbf{noise} to community genre assignment.
+  \end{block}
+  
+  \vspace{1em}
+  
+  \begin{block}{The Solution}
+    PageRank identifies \textbf{core actors} who define the community.\\
+    These actors have consistent genre profiles.
+  \end{block}
+  
+  \vspace{1em}
+  
+  \begin{center}
+    \large
+    \textcolor{accent}{PageRank weighting = amplify signal, suppress noise}
+  \end{center}
+\end{frame}
+
+% ----------------------------------------------------------
+% SUMMARY OF FINDINGS
+% ----------------------------------------------------------
+\begin{frame}{Summary of Findings}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \textbf{Network Properties:}
+    \begin{itemize}
+      \item \textcolor{accent}{Modularity:} $Q > 0.73$ at all scales
+      \item \textcolor{accentblue}{Gini coefficient:} Increases with scale
+      \item \textcolor{accent}{PageRank accuracy:} 3$\times$ random baseline
+      \item \textcolor{accentblue}{Community purity:} Majority-genre assignment succeeds
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \textbf{Key Results:}
+    \begin{itemize}
+      \item Strong community structure at every scale
+      \item Realistic hub formation with larger datasets
+      \item Clear genre clusters in network visualization
+      \item PageRank-weighting consistently best method
+    \end{itemize}
+  \end{columns}
+  
+  \vspace{1.5em}
+  
+  \begin{block}{}
+    \centering
+    Actor co-appearance networks contain \textbf{substantial intrinsic genre information},\\
+    recoverable without textual, plot, or semantic features.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% CONCLUSION
+% ----------------------------------------------------------
+\begin{frame}{Conclusion}
+  \begin{center}
+    \Large
+    \textcolor{accent}{\textbf{61\% accuracy}}\\[0.3em]
+    \large on a 5-class problem\\[0.3em]
+    \textcolor{textsub}{(random = 20\%)}\\[1.5em]
+    
+    \Large
+    \textcolor{accentblue}{\textbf{Using only network structure}}\\[0.3em]
+    \large No text. No plot. No semantics.
+  \end{center}
+  
+  \vspace{1.5em}
+  
+  \begin{block}{}
+    \centering
+    Even at the largest and noisiest scale (5,000 films), the model achieves \textcolor{accent}{\textbf{61.0\% accuracy}} using only network structure—over three times the random baseline of 20\%.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conclusion (continued)}
+  \begin{block}{Theoretical Implications}
+    Genre is not merely a content-based label. It is a \textcolor{accent}{network-emergent pattern} shaped by:
+    \begin{itemize}
+      \item Collaboration structure
+      \item Institutional clustering
+      \item Recurring partnerships
+      \item Production company specialization
+    \end{itemize}
+  \end{block}
+  
+  \vspace{1.5em}
+  
+  \begin{center}
+    \Large
+    \textcolor{accentblue}{\textbf{Genre, fundamentally, is a pattern of relationships.}}
+  \end{center}
+\end{frame}
+
+% ----------------------------------------------------------
+% FINAL QUOTE
+% ----------------------------------------------------------
+\begin{frame}[plain]
+  \begin{center}
+    \vspace{3em}
+    \Huge
+    \textit{``Genre, fundamentally,}\\[0.3em]
+    \textit{is a pattern of relationships.''}
+    
+    \vspace{3em}
+    
+    \normalsize
+    \textcolor{textsub}{github.com/avih7531/social\_networks\_final}
+  \end{center}
+\end{frame}
+
+\end{document}
+

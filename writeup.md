@@ -449,7 +449,21 @@ Communities form visually distinct clusters with characteristic genre signatures
 
 ---
 
-### 4.6 The Central Result: PageRank-Weighted Accuracy
+### 4.6 Genre Co-Occurrence Chord Diagram
+
+<div align="center">
+
+![Genre Co-Occurrence Chord Diagram](diagrams/5000/genre_cooccurrence_chord.png)
+
+*Figure 7: Genre co-occurrence chord diagram (5,000 films). Circular layout showing which genres frequently appear together in the same movie. Arc thickness and color intensity indicate co-occurrence frequency.*
+
+</div>
+
+The chord diagram provides an intuitive visualization of genre relationships. Genres positioned close together with thick connecting arcs frequently co-occur, while genres with few or no connections rarely appear together. This directly visualizes why certain genre pairs (e.g., Action–Thriller) form natural clusters in the actor network.
+
+---
+
+### 4.7 The Central Result: PageRank-Weighted Accuracy
 
 Having established that the network exhibits strong community structure (§4.2), realistic inequality (§4.1), and interpretable genre patterns (§4.3–4.4), we now present the key quantitative result: **prediction accuracy**.
 
@@ -457,7 +471,7 @@ Having established that the network exhibits strong community structure (§4.2),
 
 ![Accuracy Across Samples](diagrams/across_sample_sizes/accuracy_across_samples.png)
 
-*Figure 7: PageRank-weighted accuracy vs. dataset size. Even at the largest scale, prediction quality remains far above random baseline.*
+*Figure 8: PageRank-weighted accuracy vs. dataset size. Even at the largest scale, prediction quality remains far above random baseline.*
 
 </div>
 

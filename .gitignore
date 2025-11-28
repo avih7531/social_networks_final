@@ -23,3 +23,15 @@ diagrams/
 # OS
 .DS_Store
 Thumbs.db
+
+# LaTeX build files
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz

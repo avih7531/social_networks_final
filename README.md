@@ -97,6 +97,12 @@ social_networks_final/
 ├── abstract.md             # Project abstract
 ├── README.md               # This file
 │
+├── presentation/           # LaTeX Beamer slides
+│   ├── slides.tex          # Main presentation file
+│   ├── slides.pdf          # Compiled presentation (generated)
+│   ├── Makefile            # Build instructions
+│   └── README.md           # Presentation build guide
+│
 ├── title.basics.tsv        # IMDb movie metadata (you download)
 ├── title.ratings.tsv       # IMDb ratings data (you download)
 ├── title.principals.tsv    # IMDb cast/crew data (you download)
@@ -170,6 +176,27 @@ See [`writeup.md`](writeup.md) for the complete academic paper including:
 - Mathematical formulations
 - Detailed results and analysis
 - Discussion of findings
+
+## Presentation
+
+A LaTeX Beamer presentation (16:9 aspect ratio) is available in the `presentation/` directory. The slides cover all key findings from the writeup in a presentation-ready format.
+
+### Building the Presentation
+
+**Requirements:**
+- LaTeX distribution (TeX Live, MiKTeX, etc.)
+- `beamer` and `metropolis` theme packages
+- `pdflatex` (or `xelatex` if preferred)
+
+**Quick Build:**
+```bash
+cd presentation
+make
+```
+
+This generates `slides.pdf`. See [`presentation/README.md`](presentation/README.md) for detailed build instructions, troubleshooting, and alternative compilation methods.
+
+**Note:** The presentation requires the diagrams to be generated first (run `python project.py` from the project root).
 
 ## Customization
 
