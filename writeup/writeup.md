@@ -113,7 +113,7 @@ Without community detection, we would have no way to partition the network and t
 
 #### 2.2.2 The Louvain Algorithm
 
-We employ the **Louvain method** [Blondel et al., 2008], a greedy modularity optimization algorithm that iteratively maximizes:
+We employ the **Louvain method** [^1], a greedy modularity optimization algorithm that iteratively maximizes modularity [^3]:
 
 $$
 Q = \frac{1}{2m} \sum_{i,j} \left[ A_{ij} - \frac{k_i k_j}{2m} \right] \delta(c_i, c_j)
@@ -137,6 +137,8 @@ where:
 The Louvain algorithm proceeds in two phases:
 1. **Local optimization:** Each node greedily joins the community maximizing \(\Delta Q\)
 2. **Aggregation:** Communities become super-nodes; repeat until convergence
+
+This approach is particularly effective for finding community structure in very large networks [^4].
 
 #### 2.2.3 Why Many Communities?
 
@@ -217,7 +219,7 @@ With PageRank-weighting, accuracy can exceed raw purity because central actors (
 
 ### 2.4 Centrality: PageRank
 
-To identify influential actors within the network, we compute **PageRank** [Page et al., 1999]:
+To identify influential actors within the network, we compute **PageRank** [^2]:
 
 $$
 \text{PR}(a_i) = \frac{1-d}{N} + d \sum_{a_j \in \mathcal{N}(a_i)} \frac{W_{ji}}{\sum_k W_{jk}} \cdot \text{PR}(a_j)
@@ -339,7 +341,7 @@ PageRank distributions reveal the emergence of hub structure:
 
 <div align="center">
 
-![PageRank Distribution Comparison](diagrams/across_sample_sizes/pagerank_distribution_comparison.png)
+![PageRank Distribution Comparison](../diagrams/across_sample_sizes/pagerank_distribution_comparison.png)
 
 *Figure 1: PageRank distributions across sample sizes (log-log scale). Larger datasets exhibit heavier tails indicative of power-law structure.*
 
@@ -359,7 +361,7 @@ PageRank distributions reveal the emergence of hub structure:
 
 <div align="center">
 
-![Gini Across Samples](diagrams/across_sample_sizes/gini_across_samples.png)
+![Gini Across Samples](../diagrams/across_sample_sizes/gini_across_samples.png)
 
 *Figure 2: Gini coefficient increases with sample size, indicating realistic power-law structure.*
 
@@ -375,7 +377,7 @@ Weighted modularity consistently exceeds unweighted, confirming that genre-purit
 
 <div align="center">
 
-![Modularity (Original Genres)](diagrams/5000/modularity_original_genres.png)
+![Modularity (Original Genres)](../diagrams/5000/modularity_original_genres.png)
 
 *Figure 3: Modularity vs. number of genres (5,000-film dataset). Weighted \(Q\) remains high even with many genre categories.*
 
@@ -401,7 +403,7 @@ Weighted modularity consistently exceeds unweighted, confirming that genre-purit
 
 <div align="center">
 
-![Confusion Matrix](diagrams/250/confusion_matrix_macro.png)
+![Confusion Matrix](../diagrams/250/confusion_matrix_macro.png)
 
 *Figure 4: Confusion matrix (250 films). Rows = predicted community; columns = actor's true macro-genre.*
 
@@ -419,7 +421,7 @@ Weighted modularity consistently exceeds unweighted, confirming that genre-purit
 
 <div align="center">
 
-![Genre Co-Occurrence Matrix](diagrams/5000/genre_cooccurrence_matrix.png)
+![Genre Co-Occurrence Matrix](../diagrams/5000/genre_cooccurrence_matrix.png)
 
 *Figure 5: Genre co-occurrence matrix. Cell \((i,j)\) = percentage of genre-\(i\) films also tagged with genre-\(j\).*
 
@@ -439,7 +441,7 @@ This explains why adding more genres reduces modularity: multi-genre films creat
 
 <div align="center">
 
-![Actor Network](diagrams/5000/actor_network.png)
+![Actor Network](../diagrams/5000/actor_network.png)
 
 *Figure 6: Actor co-appearance network (5,000 films). Node color = Louvain community. Node size = weighted degree.*
 
@@ -453,7 +455,7 @@ Communities form visually distinct clusters with characteristic genre signatures
 
 <div align="center">
 
-![Genre Co-Occurrence Chord Diagram](diagrams/5000/genre_cooccurrence_chord.png)
+![Genre Co-Occurrence Chord Diagram](../diagrams/5000/genre_cooccurrence_chord.png)
 
 *Figure 7: Genre co-occurrence chord diagram (5,000 films). Circular layout showing which genres frequently appear together in the same movie. Arc thickness and color intensity indicate co-occurrence frequency.*
 
@@ -469,7 +471,7 @@ Having established that the network exhibits strong community structure (§4.2),
 
 <div align="center">
 
-![Accuracy Across Samples](diagrams/across_sample_sizes/accuracy_across_samples.png)
+![Accuracy Across Samples](../diagrams/across_sample_sizes/accuracy_across_samples.png)
 
 *Figure 8: PageRank-weighted accuracy vs. dataset size. Even at the largest scale, prediction quality remains far above random baseline.*
 
@@ -575,22 +577,10 @@ Genre is not merely a content-based label. It is a **network-emergent pattern** 
 
 **Genre, fundamentally, is a pattern of relationships.**
 
----
+[^1]: Blondel, V. D., Guillaume, J. L., Lambiotte, R., & Lefebvre, E. (2008). Fast unfolding of communities in large networks. *Journal of Statistical Mechanics: Theory and Experiment*, 2008(10), P10008.
 
-## References
+[^2]: Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web. *Stanford InfoLab Technical Report*.
 
-1. Blondel, V. D., Guillaume, J. L., Lambiotte, R., & Lefebvre, E. (2008). Fast unfolding of communities in large networks. *Journal of Statistical Mechanics: Theory and Experiment*, 2008(10), P10008.
+[^3]: Newman, M. E. (2006). Modularity and community structure in networks. *Proceedings of the National Academy of Sciences*, 103(23), 8577-8582.
 
-2. Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web. *Stanford InfoLab Technical Report*.
-
-3. Newman, M. E. (2006). Modularity and community structure in networks. *Proceedings of the National Academy of Sciences*, 103(23), 8577-8582.
-
-4. Clauset, A., Newman, M. E., & Moore, C. (2004). Finding community structure in very large networks. *Physical Review E*, 70(6), 066111.
-
----
-
-<div align="center">
-
-*Code and data available at: [github.com/aviherman/social-networks-project]*
-
-</div>
+[^4]: Clauset, A., Newman, M. E., & Moore, C. (2004). Finding community structure in very large networks. *Physical Review E*, 70(6), 066111.
