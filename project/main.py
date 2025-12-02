@@ -367,7 +367,8 @@ def run_experiments() -> None:
         generate_cross_sample_visualizations(
             all_results, pagerank_data, cross_sample_dir
         )
-    except (ValueError, KeyError, AttributeError, RuntimeError) as e:  # noqa: PLR1721
+
+    except (ValueError, KeyError, AttributeError, RuntimeError) as e:
         print(f"Error generating cross-sample visualizations: {e}")
 
     # ============================================================
