@@ -566,7 +566,37 @@ Actor co-appearance networks contain **substantial intrinsic genre information**
 
 > Even at the largest and noisiest scale (5,000 films), the model achieves **61.0% accuracy** using only network structure—over three times the random baseline of 20%.
 
-### 6.3 Theoretical Implications
+### 6.3 Limitations
+
+This work has several methodological and dataset limitations:
+
+**Methodological:**
+- **Genre aggregation** into 5 macro-genres may lose nuance
+- **Louvain algorithm** is greedy and may miss optimal partitions
+- **Edge weighting scheme** is heuristic-based
+
+**Dataset:**
+- **IMDb bias** toward English-language, popular films
+- **Sample size limits** (max 5,000 films)
+- **Genre labels** may be inconsistent or subjective
+
+Despite these limitations, results show **strong signal** even with these constraints.
+
+### 6.4 Future Work
+
+The network structure approach opens many directions for further investigation:
+
+**Methodological Extensions:**
+- **Alternative algorithms**: Leiden, Infomap, spectral methods
+- **Temporal networks**: Track genre evolution over decades
+- **Multi-layer networks**: Directors, producers, studios
+
+**Expanded Analysis:**
+- **International cinema**: Non-English language films
+- **Sub-genre detection**: Finer-grained classification
+- **Causal inference**: Does collaboration cause genre clustering?
+
+### 6.5 Theoretical Implications
 
 Genre is not merely a content-based label. It is a **network-emergent pattern** shaped by:
 
