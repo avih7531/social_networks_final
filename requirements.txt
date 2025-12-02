@@ -1,6 +1,7 @@
 # Core data processing
 pandas>=2.0.0
 numpy>=1.24.0
+scipy>=1.10.0  # Required for NetworkX pagerank algorithm
 
 # Network analysis
 networkx>=3.0
@@ -9,4 +10,3 @@ python-louvain>=0.16  # provides 'community' module
 # Visualization
 matplotlib>=3.7.0
 seaborn>=0.12.0
-
