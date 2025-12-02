@@ -26,13 +26,13 @@ from ..config import (
 def load_basics_fast(path: str = BASICS_PATH) -> pd.DataFrame:
     """
     Load title.basics.tsv file with optimized column selection and dtypes.
-    
+
     Args:
         path: Path to the title.basics.tsv file
-        
+
     Returns:
         DataFrame with movie basics information
-        
+
     Raises:
         FileNotFoundError: If the file doesn't exist
         ValueError: If the file format is invalid
@@ -47,11 +47,11 @@ def load_basics_fast(path: str = BASICS_PATH) -> pd.DataFrame:
             na_values="\\N",
             low_memory=False,
         )
-        
+
         # Type cleaning
         df["startYear"] = pd.to_numeric(df["startYear"], errors="coerce")
         df["runtimeMinutes"] = pd.to_numeric(df["runtimeMinutes"], errors="coerce")
-        
+
         return df
     except FileNotFoundError:
         raise FileNotFoundError(f"Could not find file: {path}")
@@ -63,13 +63,13 @@ def load_basics_fast(path: str = BASICS_PATH) -> pd.DataFrame:
 def load_ratings_fast(path: str = RATINGS_PATH) -> pd.DataFrame:
     """
     Load title.ratings.tsv file with optimized column selection and dtypes.
-    
+
     Args:
         path: Path to the title.ratings.tsv file
-        
+
     Returns:
         DataFrame with movie ratings information
-        
+
     Raises:
         FileNotFoundError: If the file doesn't exist
         ValueError: If the file format is invalid
@@ -95,15 +95,15 @@ def load_ratings_fast(path: str = RATINGS_PATH) -> pd.DataFrame:
 def load_principals_fast(path: str = PRINCIPALS_PATH) -> pd.DataFrame:
     """
     Load title.principals.tsv file with optimized column selection and dtypes.
-    
+
     Filters to only actors/actresses with top-billed status (ordering <= 3).
-    
+
     Args:
         path: Path to the title.principals.tsv file
-        
+
     Returns:
         DataFrame with principal cast information (actors/actresses only)
-        
+
     Raises:
         FileNotFoundError: If the file doesn't exist
         ValueError: If the file format is invalid
@@ -118,13 +118,13 @@ def load_principals_fast(path: str = PRINCIPALS_PATH) -> pd.DataFrame:
             na_values="\\N",
             low_memory=False,
         )
-        
+
         # Only actors and actresses
         df = df[df["category"].isin(["actor", "actress"])]
-        
+
         # Only top-billed (ordering <= 3)
         df = df[df["ordering"] <= 3]
-        
+
         return df
     except FileNotFoundError:
         raise FileNotFoundError(f"Could not find file: {path}")
@@ -139,15 +139,15 @@ def load_all_data(
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Load all required IMDb data files.
-    
+
     Args:
         basics_path: Path to title.basics.tsv
         ratings_path: Path to title.ratings.tsv
         principals_path: Path to title.principals.tsv
-        
+
     Returns:
         Tuple of (basics, ratings, principals) DataFrames
-        
+
     Raises:
         FileNotFoundError: If any required file is missing
         ValueError: If any file format is invalid
@@ -156,11 +156,10 @@ def load_all_data(
         basics = load_basics_fast(basics_path)
         ratings = load_ratings_fast(ratings_path)
         principals = load_principals_fast(principals_path)
-        
+
         # Merge ratings into basics
         basics = basics.merge(ratings, on="tconst", how="left")
-        
-        return basics, ratings, principals
-    except (FileNotFoundError, ValueError) as e:
-        raise
 
+        return basics, ratings, principals
+    except (FileNotFoundError, ValueError):
+        raise

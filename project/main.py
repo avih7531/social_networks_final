@@ -284,7 +284,12 @@ def run_experiments() -> None:
                     last_top_genres = top_genres
                     last_sampled_movies = sampled_movies
 
-                except (ValueError, KeyError, AttributeError, RuntimeError) as e:  # noqa: BLE001
+                except (
+                    ValueError,
+                    KeyError,
+                    AttributeError,
+                    RuntimeError,
+                ) as e:  # noqa: BLE001
                     print(
                         f"Error processing {num} genres for sample size {sample_size}: {e}"
                     )
@@ -321,7 +326,12 @@ def run_experiments() -> None:
                         top_genres=last_top_genres,
                         output_dir=diagram_dir,
                     )
-                except (ValueError, KeyError, AttributeError, RuntimeError) as e:  # noqa: BLE001
+                except (
+                    ValueError,
+                    KeyError,
+                    AttributeError,
+                    RuntimeError,
+                ) as e:  # noqa: BLE001
                     print(f"Error generating visualizations: {e}")
 
             # ========================================================

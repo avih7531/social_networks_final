@@ -21,12 +21,12 @@ from ..config import (
 def configure_plot_style() -> None:
     """
     Configure matplotlib with custom dark theme styling.
-    
+
     Sets global matplotlib parameters for consistent, beautiful plots
     with a dark color scheme optimized for presentations.
     """
     warnings.filterwarnings("ignore")
-    
+
     plt.style.use(PLOT_STYLE)
     plt.rcParams["figure.facecolor"] = FIGURE_FACECOLOR
     plt.rcParams["axes.facecolor"] = AXES_FACECOLOR
@@ -39,4 +39,3 @@ def configure_plot_style() -> None:
     plt.rcParams["legend.facecolor"] = LEGEND_FACECOLOR
     plt.rcParams["legend.edgecolor"] = LEGEND_EDGECOLOR
     plt.rcParams["font.family"] = FONT_FAMILY
-

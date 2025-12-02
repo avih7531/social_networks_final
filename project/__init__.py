@@ -6,4 +6,3 @@ and predicting movie genres using community detection.
 """
 
 __version__ = "1.0.0"
-
