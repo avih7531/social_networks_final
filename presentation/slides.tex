@@ -704,9 +704,10 @@
 \begin{frame}{Result 3: Genre Separation}
   \begin{columns}
     \column{0.5\textwidth}
-    \includegraphics[width=\textwidth]{250/confusion_matrix_macro.png}
+    \includegraphics[width=\textwidth, height=0.65\textheight, keepaspectratio]{250/confusion_matrix_macro.png}
     
     \column{0.5\textwidth}
+    \vspace{-0.5em}
     \textbf{Observations:}
     \begin{itemize}
       \item \textcolor{accent}{ACTION}: Sharply separated
@@ -715,7 +716,7 @@
       \item DARK $\leftrightarrow$ ACTION overlap
     \end{itemize}
     
-    \vspace{1em}
+    \vspace{0.5em}
     
     \textcolor{accent}{\textbf{Communities align with genres!}}
   \end{columns}
@@ -761,10 +762,9 @@
 \begin{frame}{Result 6: Genre Co-Occurrence Chord Diagram}
   \begin{columns}
     \column{0.6\textwidth}
-    \includegraphics[width=\textwidth]{5000/genre_cooccurrence_chord.png}
+    \includegraphics[width=\textwidth, height=0.85\textheight, keepaspectratio]{5000/genre_cooccurrence_chord.png}
     
     \column{0.4\textwidth}
-    \vspace{-1em}
     \textbf{Visualization:}
     \begin{itemize}
       \item Genres around circle
@@ -946,6 +946,7 @@
 % SUMMARY OF FINDINGS
 % ----------------------------------------------------------
 \begin{frame}{Summary of Findings}
+  \vspace{0.5em}
   \begin{columns}
     \column{0.5\textwidth}
     \textbf{Network Properties:}
@@ -955,7 +956,7 @@
       \item \textcolor{accent}{PageRank accuracy:} 3$\times$ random baseline
       \item \textcolor{accentblue}{Community purity:} Majority-genre assignment succeeds
     \end{itemize}
-    \vspace{3em}
+    \vspace{2.5em}
     \column{0.5\textwidth}
     \textbf{Key Results:}
     \begin{itemize}
@@ -972,6 +973,66 @@
     \centering
     Actor co-appearance networks contain \textbf{substantial intrinsic genre information},\\
     recoverable without textual, plot, or semantic features.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% LIMITATIONS
+% ----------------------------------------------------------
+\begin{frame}{Limitations}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \textbf{Methodological:}
+    \begin{itemize}
+      \item \textcolor{accent}{Genre aggregation} into 5 macro-genres may lose nuance
+      \item \textcolor{accentblue}{Louvain algorithm} is greedy and may miss optimal partitions
+      \item \textcolor{accent}{Edge weighting scheme} is heuristic-based
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \textbf{Dataset:}
+    \begin{itemize}
+      \item \textcolor{accent}{IMDb bias} toward English-language, popular films
+      \item \textcolor{accent}{Sample size limits} (max 5,000 films)
+      \item \textcolor{accentblue}{Genre labels} may be inconsistent or subjective
+    \end{itemize}
+  \end{columns}
+  
+  \vspace{1.5em}
+  
+  \begin{block}{}
+    \centering
+    Despite limitations, results show \textcolor{accent}{\textbf{strong signal}} even with these constraints.
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------
+% FUTURE WORK
+% ----------------------------------------------------------
+\begin{frame}{Future Work}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \textbf{Methodological Extensions:}
+    \begin{itemize}
+      \item \textcolor{accent}{Alternative algorithms}: Leiden, Infomap, spectral methods
+      \item \textcolor{accentblue}{Temporal networks}: Track genre evolution over decades
+      \item \textcolor{accent}{Multi-layer networks}: Directors, producers, studios
+    \end{itemize}
+    
+    \column{0.5\textwidth}
+    \textbf{Expanded Analysis:}
+    \begin{itemize}
+      \item \textcolor{accent}{International cinema}: Non-English language films
+      \item \textcolor{accentblue}{Sub-genre detection}: Finer-grained classification
+      \item \textcolor{accentblue}{Causal inference}: Does collaboration cause genre clustering?
+    \end{itemize}
+  \end{columns}
+  
+  \vspace{1.5em}
+  
+  \begin{block}{}
+    \centering
+    The network structure approach opens many directions for \textcolor{accent}{\textbf{further investigation}}.
   \end{block}
 \end{frame}
 
