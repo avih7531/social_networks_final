@@ -35,3 +35,22 @@ Thumbs.db
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+
+# Cache directory
+.cache/
+*.pkl
+*.cache
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
